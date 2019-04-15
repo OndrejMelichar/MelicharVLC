@@ -25,12 +25,23 @@ namespace MelicharVLC
         public MainWindow()
         {
             InitializeComponent();
+            this.initializeVLC();
+
+        }
+
+        private void initializeVLC()
+        {
             var currentAssembly = Assembly.GetEntryAssembly();
             var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-            var libDirectory = new DirectoryInfo(@"C:\Program Files\VideoLAN\VLC\vlc.exe");
+            var vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
 
-            this.VlcControl.SourceProvider.CreatePlayer(libDirectory/* pass your player parameters here */);
-            this.VlcControl.SourceProvider.MediaPlayer.Play(new Uri("http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_surround-fix.avi"));
+            var options = new string[]
+            {
+                // VLC options can be given here. Please refer to the VLC command line documentation.
+            };
+
+            this.MyControl.SourceProvider.CreatePlayer(vlcLibDirectory, options);
+            this.MyControl.SourceProvider.MediaPlayer.Play("http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_h264.mov");
         }
     }
 }
