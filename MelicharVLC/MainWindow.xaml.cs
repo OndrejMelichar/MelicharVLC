@@ -16,6 +16,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Vlc.DotNet.Wpf;
+using System.Threading;
+using Microsoft.Win32;
 
 namespace MelicharVLC
 {
@@ -27,6 +29,11 @@ namespace MelicharVLC
         private readonly DirectoryInfo vlcLibDirectory;
         private VlcControl control;
 
+        private bool isPaused = false;
+
+        private List<string> selectedVideos = new List<string>();
+        private int selectedIndex = 0;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -36,32 +43,73 @@ namespace MelicharVLC
             vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
         }
 
+
         /* WPF EVENTY */
-        private void OnPlayButtonClick(object sender, RoutedEventArgs e)
-        {
-            this.control?.Dispose();
-            this.control = new VlcControl();
-            this.ControlContainer.Content = this.control;
-            this.control.SourceProvider.CreatePlayer(this.vlcLibDirectory);
+        private void selectVideoButtonClick(object sender, RoutedEventArgs e) {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Multiselect = true;
 
-            this.control.SourceProvider.MediaPlayer.Log += (_, args) =>
+            if (openFileDialog.ShowDialog() == true)
             {
-                string message = $"libVlc : {args.Level} {args.Message} @ {args.Module}";
-                System.Diagnostics.Debug.WriteLine(message);
-            };
-
-            control.SourceProvider.MediaPlayer.Play(new Uri("http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_surround-fix.avi")); //TODO: vybrené video k přehrání
+                this.setSelectedVideos(openFileDialog.FileNames);
+            }
         }
 
-        private void OnPauseButtonClick(object sender, RoutedEventArgs e)
+        private void playPauseButtonClick(object sender, RoutedEventArgs e)
         {
+            if (playPauseButton.Content.ToString() == "Přehrát")
+            {
+                playPauseButton.Content = "Pozastavit";
+                this.OnPlayButtonClick();
+            }
+            else if (playPauseButton.Content.ToString() == "Pozastavit")
+            {
+                playPauseButton.Content = "Přehrát";
+                this.OnPauseButtonClick();
+            }
+        }
 
+        private void OnPlayButtonClick()
+        {
+            if (this.isPaused)
+            {
+                this.isPaused = false;
+                this.control.SourceProvider.MediaPlayer.Play();
+            }
+            else
+            {
+                this.control?.Dispose();
+                this.control = new VlcControl();
+                this.ControlContainer.Content = this.control;
+                this.control.SourceProvider.CreatePlayer(this.vlcLibDirectory);
+
+                this.control.SourceProvider.MediaPlayer.Log += (_, args) =>
+                {
+                    string message = $"libVlc : {args.Level} {args.Message} @ {args.Module}";
+                    System.Diagnostics.Debug.WriteLine(message);
+                };
+
+                /*"http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_surround-fix.avi";*/
+
+                if (this.selectedVideos.Count > 0)
+                {
+                    fileNameLabel.Content = this.selectedVideos[this.selectedIndex];
+                    this.control.SourceProvider.MediaPlayer.Play(new Uri(this.selectedVideos[this.selectedIndex]));
+                }
+            }
+        }
+
+        private void OnPauseButtonClick()
+        {
+            this.isPaused = true;
+            this.control.SourceProvider.MediaPlayer.Pause();
         }
 
         private void OnStopButtonClick(object sender, RoutedEventArgs e)
         {
             this.control?.Dispose();
             this.control = null;
+            this.isPaused = false;
         }
 
         private void OnPlusButtonClick(object sender, RoutedEventArgs e)
@@ -76,16 +124,42 @@ namespace MelicharVLC
 
         private void OnNextButtonClick(object sender, RoutedEventArgs e)
         {
+            this.isPaused = false;
+            this.selectedIndex++;
 
+            if (this.selectedIndex >= this.selectedVideos.Count)
+            {
+                this.selectedIndex = this.selectedVideos.Count;
+            }
         }
 
         private void OnPreviousButtonClick(object sender, RoutedEventArgs e)
         {
+            this.isPaused = false;
+            this.selectedIndex--;
 
+            if (this.selectedIndex < 0)
+            {
+                this.selectedIndex = 0;
+            }
         }
 
 
         /* POMOCNÉ METODY */
+        private void setPaused()
+        {
+
+        }
+
+        private void setSelectedVideos(string[] files)
+        {
+            foreach (string file in files)
+            {
+                this.selectedVideos.Add(file);
+            }
+        }
+
+
         private long getTotalTime()
         {
             if (this.control == null)

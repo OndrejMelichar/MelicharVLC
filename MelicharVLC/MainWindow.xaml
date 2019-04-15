@@ -10,21 +10,43 @@
     <Grid>
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ContentControl Grid.Row="0" Name="ControlContainer" />
-
-        <StackPanel Orientation="Horizontal" Grid.Row="1">
-            <Button Click="OnPlayButtonClick">Přehrát</Button>
-            <Button Click="OnPauseButtonClick">Pozastavit</Button>
-            <Button Click="OnStopButtonClick">Zastavit</Button>
-            <Button Click="OnPlusButtonClick">+ 30 sekund</Button>
-            <Button Click="OnMinusButtonClick">- 5 sekund</Button>
-            <Button Click="OnNextButtonClick">Další video</Button>
-            <Button Click="OnPreviousButtonClick">Předešlé video</Button>
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <Button Click="selectVideoButtonClick">Vybrat</Button>
         </StackPanel>
+
+        <ContentControl Grid.Row="1" Name="ControlContainer" />
+
+        <Label x:Name="fileNameLabel" Grid.Row="2" HorizontalAlignment="Center" Content="Název" />
+
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="128"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="128"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Click="OnPreviousButtonClick" Grid.Column="0">Předešlé video</Button>
+
+            <StackPanel Orientation="Vertical" Grid.Column="1">
+                <StackPanel Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Center">
+                    <Button x:Name="playPauseButton" Click="playPauseButtonClick" Margin="4,2" Padding="12,2">Přehrát</Button>
+                    <Button Click="OnStopButtonClick" Margin="4,2" Padding="12,2">Zastavit</Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="4" HorizontalAlignment="Center">
+                    <Button Click="OnPlusButtonClick" Margin="4,2" Padding="12,2">+ 30 sekund</Button>
+                    <Button Click="OnMinusButtonClick" Margin="4,2" Padding="12,2">- 5 sekund</Button>
+                </StackPanel>
+            </StackPanel>
+
+            <Button Click="OnNextButtonClick" Grid.Column="2">Další video</Button>
+
+        </Grid>
 
     </Grid>
 </Window>
