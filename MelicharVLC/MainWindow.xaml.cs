@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 using Vlc.DotNet.Wpf;
 using System.Threading;
 using Microsoft.Win32;
+using System.Windows.Threading;
 
 namespace MelicharVLC
 {
@@ -40,6 +41,28 @@ namespace MelicharVLC
             var currentAssembly = Assembly.GetEntryAssembly();
             var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
             vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
+
+            this.initializeDipatcherTimer();
+        }
+
+        private void initializeDipatcherTimer()
+        {
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(0.05);
+            timer.Tick += timer_Tick;
+            timer.Start();
+        }
+
+        void timer_Tick(object sender, EventArgs e)
+        {
+            long totalTime = this.getTotalTime();
+
+            if (totalTime != 0)
+            {
+                long actualTime = this.getActualTime();
+                double pom = ((double)actualTime / (double)totalTime);
+                statusProgressBar.Value = pom * 100;
+            }
         }
 
 
@@ -95,6 +118,7 @@ namespace MelicharVLC
                 {
                     fileNameLabel.Content = this.selectedVideos[this.selectedIndex];
                     this.control.SourceProvider.MediaPlayer.Play(new Uri(this.selectedVideos[this.selectedIndex]));
+                    this.control.SourceProvider.MediaPlayer.EndReached += (s, e) => this.videoEnded();
                 }
             }
         }
@@ -149,13 +173,13 @@ namespace MelicharVLC
             this.OnPlayButtonClick();
         }
 
-
-        /* POMOCNÉ METODY */
-        private void setPaused()
+        private void videoEnded()
         {
-
+            
         }
 
+
+        /* POMOCNÉ METODY */
         private void setSelectedVideos(string[] files)
         {
             foreach (string file in files)
@@ -232,5 +256,15 @@ namespace MelicharVLC
             this.control?.Dispose();
             base.OnClosing(e);
         }
+
+        private void StatusProgressBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Point point = Mouse.GetPosition(Application.Current.MainWindow);
+            double ratio = point.X / (mainWindowX.Width - 16);
+            this.setActualTime((long)(this.getTotalTime() * ratio));
+            statusProgressBar.Value = ratio * 100;
+        }
+
+        
     }
 }
