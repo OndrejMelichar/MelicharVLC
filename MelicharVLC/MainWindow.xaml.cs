@@ -45,13 +45,16 @@ namespace MelicharVLC
 
 
         /* WPF EVENTY */
-        private void selectVideoButtonClick(object sender, RoutedEventArgs e) {
+        private void selectVideoButtonClick(object sender, RoutedEventArgs e)
+        {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = true;
 
             if (openFileDialog.ShowDialog() == true)
             {
                 this.setSelectedVideos(openFileDialog.FileNames);
+                this.OnPlayButtonClick();
+                playPauseButton.Content = "Pozastavit";
             }
         }
 
@@ -89,8 +92,6 @@ namespace MelicharVLC
                     System.Diagnostics.Debug.WriteLine(message);
                 };
 
-                /*"http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_surround-fix.avi";*/
-
                 if (this.selectedVideos.Count > 0)
                 {
                     fileNameLabel.Content = this.selectedVideos[this.selectedIndex];
@@ -109,7 +110,7 @@ namespace MelicharVLC
         {
             this.control?.Dispose();
             this.control = null;
-            this.isPaused = false;
+            playPauseButton.Content = "Přehrát";
         }
 
         private void OnPlusButtonClick(object sender, RoutedEventArgs e)
@@ -131,6 +132,8 @@ namespace MelicharVLC
             {
                 this.selectedIndex = this.selectedVideos.Count;
             }
+
+            this.OnPlayButtonClick();
         }
 
         private void OnPreviousButtonClick(object sender, RoutedEventArgs e)
@@ -142,6 +145,8 @@ namespace MelicharVLC
             {
                 this.selectedIndex = 0;
             }
+
+            this.OnPlayButtonClick();
         }
 
 
