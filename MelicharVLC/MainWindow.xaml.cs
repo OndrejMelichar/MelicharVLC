@@ -30,7 +30,6 @@ namespace MelicharVLC
         private VlcControl control;
 
         private bool isPaused = false;
-
         private List<string> selectedVideos = new List<string>();
         private int selectedIndex = 0;
 
@@ -111,6 +110,7 @@ namespace MelicharVLC
             this.control?.Dispose();
             this.control = null;
             playPauseButton.Content = "Přehrát";
+            this.isPaused = false;
         }
 
         private void OnPlusButtonClick(object sender, RoutedEventArgs e)
