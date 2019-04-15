@@ -8,6 +8,23 @@
         xmlns:Vlc="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Vlc:VlcControl x:Name="MyControl" />
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ContentControl Grid.Row="0" Name="ControlContainer" />
+
+        <StackPanel Orientation="Horizontal" Grid.Row="1">
+            <Button Click="OnPlayButtonClick">Přehrát</Button>
+            <Button Click="OnPauseButtonClick">Pozastavit</Button>
+            <Button Click="OnStopButtonClick">Zastavit</Button>
+            <Button Click="OnPlusButtonClick">+ 30 sekund</Button>
+            <Button Click="OnMinusButtonClick">- 5 sekund</Button>
+            <Button Click="OnNextButtonClick">Další video</Button>
+            <Button Click="OnPreviousButtonClick">Předešlé video</Button>
+        </StackPanel>
+
     </Grid>
 </Window>
