@@ -18,22 +18,12 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Button Click="selectVideoButtonClick">Vybrat videa</Button>
-
         <ContentControl Grid.Row="1" Name="ControlContainer" />
-
-        <ProgressBar x:Name="statusProgressBar" MouseDown="StatusProgressBar_MouseDown" Height="10" Grid.Row="2" Minimum="0" Maximum="100"/>
-
-        <Label x:Name="fileNameLabel" Grid.Row="3" HorizontalAlignment="Center" Content="Název" />
 
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="128"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="128"/>
             </Grid.ColumnDefinitions>
-
-            <Button Click="OnPreviousButtonClick" Grid.Column="0">Předešlé video</Button>
 
             <StackPanel Orientation="Vertical" Grid.Column="1">
                 <StackPanel Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Center">
@@ -44,10 +34,10 @@
                     <Button Click="OnPlusButtonClick" Margin="4,2" Padding="12,2">+ 30 sekund</Button>
                     <Button Click="OnMinusButtonClick" Margin="4,2" Padding="12,2">- 5 sekund</Button>
                 </StackPanel>
+                <Grid>
+                    <ProgressBar />
+                </Grid>
             </StackPanel>
-
-            <Button Click="OnNextButtonClick" Grid.Column="2">Další video</Button>
-
         </Grid>
 
     </Grid>

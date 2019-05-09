@@ -31,54 +31,22 @@ namespace MelicharVLC
         private VlcControl control;
 
         private bool isPaused = false;
-        private List<string> selectedVideos = new List<string>();
-        private int selectedIndex = 0;
+        private string URI = "https://pspcr-live.ssl.cdn.cra.cz/live.pscr/smil:snemovna2/index.m3u8";
 
         public MainWindow()
         {
             InitializeComponent();
-
             var currentAssembly = Assembly.GetEntryAssembly();
             var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
             vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
-
-            this.initializeDipatcherTimer();
         }
 
-        private void initializeDipatcherTimer()
-        {
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(0.05);
-            timer.Tick += timer_Tick;
-            timer.Start();
-        }
+        /* dodáno */
 
-        void timer_Tick(object sender, EventArgs e)
-        {
-            long totalTime = this.getTotalTime();
-
-            if (totalTime != 0)
-            {
-                long actualTime = this.getActualTime();
-                double pom = ((double)actualTime / (double)totalTime);
-                statusProgressBar.Value = pom * 100;
-            }
-        }
+        /* /dodáno */
 
 
         /* WPF EVENTY */
-        private void selectVideoButtonClick(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Multiselect = true;
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                this.setSelectedVideos(openFileDialog.FileNames);
-                this.OnPlayButtonClick();
-                playPauseButton.Content = "Pozastavit";
-            }
-        }
 
         private void playPauseButtonClick(object sender, RoutedEventArgs e)
         {
@@ -113,13 +81,9 @@ namespace MelicharVLC
                     string message = $"libVlc : {args.Level} {args.Message} @ {args.Module}";
                     System.Diagnostics.Debug.WriteLine(message);
                 };
-
-                if (this.selectedVideos.Count > 0)
-                {
-                    fileNameLabel.Content = this.selectedVideos[this.selectedIndex];
-                    this.control.SourceProvider.MediaPlayer.Play(new Uri(this.selectedVideos[this.selectedIndex]));
-                    this.control.SourceProvider.MediaPlayer.EndReached += (s, e) => this.videoEnded();
-                }
+                
+                this.control.SourceProvider.MediaPlayer.Play(new Uri(this.URI));
+                this.control.SourceProvider.MediaPlayer.EndReached += (s, e) => this.videoEnded();
             }
         }
 
@@ -147,32 +111,6 @@ namespace MelicharVLC
             this.removeTime(5 * 1000);
         }
 
-        private void OnNextButtonClick(object sender, RoutedEventArgs e)
-        {
-            this.isPaused = false;
-            this.selectedIndex++;
-
-            if (this.selectedIndex >= this.selectedVideos.Count)
-            {
-                this.selectedIndex = this.selectedVideos.Count;
-            }
-
-            this.OnPlayButtonClick();
-        }
-
-        private void OnPreviousButtonClick(object sender, RoutedEventArgs e)
-        {
-            this.isPaused = false;
-            this.selectedIndex--;
-
-            if (this.selectedIndex < 0)
-            {
-                this.selectedIndex = 0;
-            }
-
-            this.OnPlayButtonClick();
-        }
-
         private void videoEnded()
         {
             
@@ -180,15 +118,6 @@ namespace MelicharVLC
 
 
         /* POMOCNÉ METODY */
-        private void setSelectedVideos(string[] files)
-        {
-            foreach (string file in files)
-            {
-                this.selectedVideos.Add(file);
-            }
-        }
-
-
         private long getTotalTime()
         {
             if (this.control == null)
@@ -255,14 +184,6 @@ namespace MelicharVLC
         {
             this.control?.Dispose();
             base.OnClosing(e);
-        }
-
-        private void StatusProgressBar_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Point point = Mouse.GetPosition(Application.Current.MainWindow);
-            double ratio = point.X / (mainWindowX.Width - 16);
-            this.setActualTime((long)(this.getTotalTime() * ratio));
-            statusProgressBar.Value = ratio * 100;
         }
 
         
