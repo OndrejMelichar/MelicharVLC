@@ -196,7 +196,7 @@ namespace MelicharVLC
                 return 0;
             }
 
-            return this.control.SourceProvider.MediaPlayer.Length; //v milisekundách
+            return this.control.SourceProvider.MediaPlayer.Length; // v milisekundách
         }
 
         private long getActualTime()
