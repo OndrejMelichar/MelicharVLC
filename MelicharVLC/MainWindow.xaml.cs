@@ -19,6 +19,9 @@ using Vlc.DotNet.Wpf;
 using System.Threading;
 using Microsoft.Win32;
 using System.Windows.Threading;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
+using System.Diagnostics;
 
 namespace MelicharVLC
 {
@@ -27,23 +30,84 @@ namespace MelicharVLC
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly DirectoryInfo vlcLibDirectory;
+        private DispatcherTimer timer;
+        private string previousChecksum = "";
+        private DirectoryInfo vlcLibDirectory;
         private VlcControl control;
-
         private bool isPaused = false;
+
         private string URI = "https://pspcr-live.ssl.cdn.cra.cz/live.pscr/smil:snemovna2/index.m3u8";
+        //private string URI = @"D:\Ondřej Melichar\Moje data\škola\3. ročník\VAH\videa\Miloš Zeman - TV spot od Filipa Renče plná verze.mp4";
 
         public MainWindow()
         {
             InitializeComponent();
-            var currentAssembly = Assembly.GetEntryAssembly();
-            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-            vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
+
+            this.setTimer();
+            this.setPlayer();
         }
 
-        /* dodáno */
+        private void setTimer()
+        {
+            this.timer = new DispatcherTimer();
+            this.timer.Interval = TimeSpan.FromSeconds(60);
+            this.timer.Tick += timerTick;
+            this.timer.Start();
+        }
 
-        /* /dodáno */
+        private void setPlayer()
+        {
+            var currentAssembly = Assembly.GetEntryAssembly();
+            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+            this.vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
+
+            this.control?.Dispose();
+            this.control = new VlcControl();
+            this.ControlContainer.Content = this.control;
+            this.control.SourceProvider.CreatePlayer(this.vlcLibDirectory);
+            this.control.SourceProvider.MediaPlayer.Play(new Uri(this.URI));
+            this.control.SourceProvider.MediaPlayer.EndReached += (s, e) => this.videoEnded();
+        }
+
+        void timerTick(object sender, EventArgs e)
+        {
+            Task.Run(async () => {
+                await this.timerTickAsync();
+            }).ConfigureAwait(true);
+        }
+
+        private async Task timerTickAsync()
+        {
+            WebAPIActions webAPIActions = new WebAPIActions();
+            string html = await webAPIActions.GET_HTML("https://utils.ssl.cdn.cra.cz/live-streaming/clients/pspcr/player-new.php");
+            await Task.Run(() => nonAsyncTickBlock(html));
+        }
+
+        private void nonAsyncTickBlock(string html)
+        {
+            string actualChecksum = this.getStringChecksum(html);
+
+            if (!this.previousChecksum.Equals(actualChecksum))
+            {
+                // přenos (stream videa) začal
+                //this.timer.Stop();
+            }
+
+            this.previousChecksum = actualChecksum;
+        }
+
+        private string getStringChecksum(string inputString)
+        {
+            string hash;
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            {
+                hash = BitConverter.ToString(
+                  md5.ComputeHash(Encoding.UTF8.GetBytes(inputString))
+                ).Replace("-", String.Empty);
+            }
+
+            return hash;
+        }
 
 
         /* WPF EVENTY */
@@ -75,13 +139,6 @@ namespace MelicharVLC
                 this.control = new VlcControl();
                 this.ControlContainer.Content = this.control;
                 this.control.SourceProvider.CreatePlayer(this.vlcLibDirectory);
-
-                this.control.SourceProvider.MediaPlayer.Log += (_, args) =>
-                {
-                    string message = $"libVlc : {args.Level} {args.Message} @ {args.Module}";
-                    System.Diagnostics.Debug.WriteLine(message);
-                };
-                
                 this.control.SourceProvider.MediaPlayer.Play(new Uri(this.URI));
                 this.control.SourceProvider.MediaPlayer.EndReached += (s, e) => this.videoEnded();
             }

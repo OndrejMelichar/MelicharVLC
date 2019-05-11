@@ -26,8 +26,9 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Orientation="Vertical" Grid.Column="1">
+                <Label x:Name="volumeLabel" Content="???"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Center">
-                    <Button x:Name="playPauseButton" Click="playPauseButtonClick" Margin="4,2" Padding="12,2">Přehrát</Button>
+                    <Button x:Name="playPauseButton" Click="playPauseButtonClick" Margin="4,2" Padding="12,2">Pozastavit</Button>
                     <Button Click="OnStopButtonClick" Margin="4,2" Padding="12,2">Zastavit</Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Row="4" HorizontalAlignment="Center">
