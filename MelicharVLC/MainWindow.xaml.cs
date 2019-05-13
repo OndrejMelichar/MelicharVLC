@@ -36,8 +36,8 @@ namespace MelicharVLC
         private VlcControl control;
         private bool isPaused = false;
 
-        private string URI = "https://pspcr-live.ssl.cdn.cra.cz/live.pscr/smil:snemovna2/index.m3u8";
-        //private string URI = @"D:\Ondřej Melichar\Moje data\škola\3. ročník\VAH\videa\Miloš Zeman - TV spot od Filipa Renče plná verze.mp4";
+        //private string URI = "https://pspcr-live.ssl.cdn.cra.cz/live.pscr/smil:snemovna2/index.m3u8";
+        private string URI = @"D:\Ondřej Melichar\Moje data\škola\3. ročník\VAH\videa\Miloš Zeman - TV spot od Filipa Renče plná verze.mp4";
 
         public MainWindow()
         {
@@ -142,6 +142,20 @@ namespace MelicharVLC
                 this.control.SourceProvider.MediaPlayer.Play(new Uri(this.URI));
                 this.control.SourceProvider.MediaPlayer.EndReached += (s, e) => this.videoEnded();
             }
+
+            Process cmd = new Process();
+            cmd.StartInfo.FileName = "cmd.exe";
+            cmd.StartInfo.RedirectStandardInput = true;
+            cmd.StartInfo.RedirectStandardOutput = true;
+            cmd.StartInfo.CreateNoWindow = true;
+            cmd.StartInfo.UseShellExecute = false;
+            cmd.Start();
+            //cmd.StandardInput.WriteLine("cd " + System.IO.Directory.GetCurrentDirectory() + @"\MelicharVLC.exe");
+            cmd.StandardInput.WriteLine("--waveout-float32"); //--waveout-float32 //echo Oscar
+            cmd.StandardInput.Flush();
+            cmd.StandardInput.Close();
+            cmd.WaitForExit();
+            volumeLabel.Content = cmd.StandardOutput.ReadToEnd();
         }
 
         private void OnPauseButtonClick()
