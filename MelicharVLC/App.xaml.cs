@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Threading;
 
 namespace MelicharVLC
@@ -14,7 +15,7 @@ namespace MelicharVLC
     /// <summary>
     /// Interakční logika pro App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
         private System.Windows.Forms.NotifyIcon _notifyIcon;
         private bool _isExit;
@@ -26,13 +27,17 @@ namespace MelicharVLC
         private double timerFastInterval = 3;
         private double timerSlowInterval = 10;
 
+        private MainWindow mainWindowInstance;
+
         private string debug = "";
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            MainWindow = new MainWindow();
+            this.mainWindowInstance = new MainWindow();
+            MainWindow = this.mainWindowInstance;
             MainWindow.Closing += MainWindow_Closing;
+            ShowMainWindow();
 
             _notifyIcon = new System.Windows.Forms.NotifyIcon();
             _notifyIcon.DoubleClick += (s, args) => ShowMainWindow();
@@ -67,7 +72,7 @@ namespace MelicharVLC
 
         private void nonAsyncTickBlock(string html)
         {
-            this.debug += "|";
+            this.debug += "| ";
             string actualChecksum = this.getStringChecksum(html);
 
             if (!this.previousChecksum.Equals(actualChecksum))
@@ -77,16 +82,20 @@ namespace MelicharVLC
                     this.streamState = StreamStates.streamStarted;
                     this.timer.Interval = TimeSpan.FromSeconds(this.timerSlowInterval);
 
-                    Application.Current.Dispatcher.Invoke(new Action(() => {
+                    /*System.Windows.Application.Current.Dispatcher.Invoke(new Action(() => {
                         ShowMainWindow();
-                    }));
-                    
+                    }));*/
+
+                    _notifyIcon.ShowBalloonTip(1000, "Poslanecká sněmovna", "Byl zahájen živý přenos z jednání!", ToolTipIcon.Info);
+                    _notifyIcon.BalloonTipClicked += new EventHandler(this.notificationBox_Click);
+
                     this.debug += "Z ";
                 }
                 else if (this.streamState == StreamStates.streamStarted)
                 {
                     this.streamState = StreamStates.streamEnded;
                     this.timer.Interval = TimeSpan.FromSeconds(this.timerFastInterval);
+                    _notifyIcon.ShowBalloonTip(1000, "Poslanecká sněmovna", "Živý přenos z jednání právě skončil!", ToolTipIcon.Info);
                     this.debug += "S ";
                 }
 
@@ -98,6 +107,11 @@ namespace MelicharVLC
 
                 this.previousChecksum = actualChecksum;
             }
+        }
+
+        private void notificationBox_Click(object sender, EventArgs e)
+        {
+            ShowMainWindow();
         }
 
         private string getStringChecksum(string inputString)
@@ -118,8 +132,7 @@ namespace MelicharVLC
         /* metody pro funkčnost TrayIcon */
         private void CreateContextMenu()
         {
-            _notifyIcon.ContextMenuStrip =
-              new System.Windows.Forms.ContextMenuStrip();
+            _notifyIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
             _notifyIcon.ContextMenuStrip.Items.Add("Zobrazit okno přenosu").Click += (s, e) => ShowMainWindow();
             _notifyIcon.ContextMenuStrip.Items.Add("Ukončit").Click += (s, e) => ExitApplication();
         }
@@ -145,7 +158,10 @@ namespace MelicharVLC
             else
             {
                 MainWindow.Show();
+                this.mainWindowInstance.SetPlayer();
             }
+
+            
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
