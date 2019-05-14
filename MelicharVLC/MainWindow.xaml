@@ -7,7 +7,8 @@
         xmlns:local="clr-namespace:MelicharVLC"
         mc:Ignorable="d"
         xmlns:Vlc="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf"
-        Title="MainWindow" Height="450" Width="800" Background="#1a1a1a">
+        Title="Živý přenos z Poslanecké sněmovny Parlamentu ČR" Height="450" Width="800" Background="Black">
+
     <Grid>
 
         <Grid.RowDefinitions>
@@ -18,7 +19,7 @@
         <ContentControl Grid.Row="0" Name="ControlContainer" />
 
         <StackPanel Orientation="Vertical" Grid.Row="1">
-            <Button x:Name="playPauseButton" Click="playPauseButtonClick" BorderThickness="0" Background="#333" Foreground="#cdcdcd" Margin="4,2" Padding="0,12" FontWeight="Medium" FontFamily="Times New Roman">POZASTAVIT</Button>
+            <Button x:Name="playPauseButton" Click="playPauseButtonClick" Style="{DynamicResource ButtonStyle1}" FontWeight="Medium" FontFamily="Times New Roman">POZASTAVIT</Button>
         </StackPanel>
 
     </Grid>
