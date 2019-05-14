@@ -30,29 +30,18 @@ namespace MelicharVLC
     /// </summary>
     public partial class MainWindow : Window
     {
-        private DispatcherTimer timer;
-        private string previousChecksum = "";
         private DirectoryInfo vlcLibDirectory;
         private VlcControl control;
         private bool isPaused = false;
 
-        //private string URI = "https://pspcr-live.ssl.cdn.cra.cz/live.pscr/smil:snemovna2/index.m3u8";
-        private string URI = @"D:\Ondřej Melichar\Moje data\škola\3. ročník\VAH\videa\Miloš Zeman - TV spot od Filipa Renče plná verze.mp4";
+        private string URI = "https://pspcr-live.ssl.cdn.cra.cz/live.pscr/smil:snemovna2/index.m3u8";
+        //private string URI = @"D:\Ondřej Melichar\Moje data\škola\3. ročník\VAH\videa\Miloš Zeman - TV spot od Filipa Renče plná verze.mp4";
 
         public MainWindow()
         {
             InitializeComponent();
-
-            this.setTimer();
+            
             this.setPlayer();
-        }
-
-        private void setTimer()
-        {
-            this.timer = new DispatcherTimer();
-            this.timer.Interval = TimeSpan.FromSeconds(60);
-            this.timer.Tick += timerTick;
-            this.timer.Start();
         }
 
         private void setPlayer()
@@ -68,47 +57,6 @@ namespace MelicharVLC
             this.control.SourceProvider.MediaPlayer.Play(new Uri(this.URI));
             this.control.SourceProvider.MediaPlayer.EndReached += (s, e) => this.videoEnded();
         }
-
-        void timerTick(object sender, EventArgs e)
-        {
-            Task.Run(async () => {
-                await this.timerTickAsync();
-            }).ConfigureAwait(true);
-        }
-
-        private async Task timerTickAsync()
-        {
-            WebAPIActions webAPIActions = new WebAPIActions();
-            string html = await webAPIActions.GET_HTML("https://utils.ssl.cdn.cra.cz/live-streaming/clients/pspcr/player-new.php");
-            await Task.Run(() => nonAsyncTickBlock(html));
-        }
-
-        private void nonAsyncTickBlock(string html)
-        {
-            string actualChecksum = this.getStringChecksum(html);
-
-            if (!this.previousChecksum.Equals(actualChecksum))
-            {
-                // přenos (stream videa) začal
-                //this.timer.Stop();
-            }
-
-            this.previousChecksum = actualChecksum;
-        }
-
-        private string getStringChecksum(string inputString)
-        {
-            string hash;
-            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
-            {
-                hash = BitConverter.ToString(
-                  md5.ComputeHash(Encoding.UTF8.GetBytes(inputString))
-                ).Replace("-", String.Empty);
-            }
-
-            return hash;
-        }
-
 
         /* WPF EVENTY */
 
