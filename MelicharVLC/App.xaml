@@ -1,9 +1,8 @@
 ﻿<Application x:Class="MelicharVLC.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:MelicharVLC"
-             StartupUri="MainWindow.xaml">
+             xmlns:local="clr-namespace:MelicharVLC">
     <Application.Resources>
-         
+        <ResourceDictionary Source="pack://application:,,,/MelicharVLC;component/Dictionary.xaml" />
     </Application.Resources>
 </Application>

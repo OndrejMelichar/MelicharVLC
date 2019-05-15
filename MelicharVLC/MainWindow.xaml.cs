@@ -30,8 +30,6 @@ namespace MelicharVLC
     /// </summary>
     public partial class MainWindow : Window
     {
-        private DispatcherTimer timer;
-        private string previousChecksum = "";
         private DirectoryInfo vlcLibDirectory;
         private VlcControl control;
         private bool isPaused = false;
@@ -42,20 +40,9 @@ namespace MelicharVLC
         public MainWindow()
         {
             InitializeComponent();
-
-            this.setTimer();
-            this.setPlayer();
         }
 
-        private void setTimer()
-        {
-            this.timer = new DispatcherTimer();
-            this.timer.Interval = TimeSpan.FromSeconds(60);
-            this.timer.Tick += timerTick;
-            this.timer.Start();
-        }
-
-        private void setPlayer()
+        public void SetPlayer()
         {
             var currentAssembly = Assembly.GetEntryAssembly();
             var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
@@ -69,59 +56,18 @@ namespace MelicharVLC
             this.control.SourceProvider.MediaPlayer.EndReached += (s, e) => this.videoEnded();
         }
 
-        void timerTick(object sender, EventArgs e)
-        {
-            Task.Run(async () => {
-                await this.timerTickAsync();
-            }).ConfigureAwait(true);
-        }
-
-        private async Task timerTickAsync()
-        {
-            WebAPIActions webAPIActions = new WebAPIActions();
-            string html = await webAPIActions.GET_HTML("https://utils.ssl.cdn.cra.cz/live-streaming/clients/pspcr/player-new.php");
-            await Task.Run(() => nonAsyncTickBlock(html));
-        }
-
-        private void nonAsyncTickBlock(string html)
-        {
-            string actualChecksum = this.getStringChecksum(html);
-
-            if (!this.previousChecksum.Equals(actualChecksum))
-            {
-                // přenos (stream videa) začal
-                //this.timer.Stop();
-            }
-
-            this.previousChecksum = actualChecksum;
-        }
-
-        private string getStringChecksum(string inputString)
-        {
-            string hash;
-            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
-            {
-                hash = BitConverter.ToString(
-                  md5.ComputeHash(Encoding.UTF8.GetBytes(inputString))
-                ).Replace("-", String.Empty);
-            }
-
-            return hash;
-        }
-
-
         /* WPF EVENTY */
 
         private void playPauseButtonClick(object sender, RoutedEventArgs e)
         {
-            if (playPauseButton.Content.ToString() == "Přehrát")
+            if (playPauseButton.Content.ToString() == "PŘEHRÁT")
             {
-                playPauseButton.Content = "Pozastavit";
+                playPauseButton.Content = "POZASTAVIT";
                 this.OnPlayButtonClick();
             }
-            else if (playPauseButton.Content.ToString() == "Pozastavit")
+            else if (playPauseButton.Content.ToString() == "POZASTAVIT")
             {
-                playPauseButton.Content = "Přehrát";
+                playPauseButton.Content = "PŘEHRÁT";
                 this.OnPauseButtonClick();
             }
         }
@@ -142,20 +88,6 @@ namespace MelicharVLC
                 this.control.SourceProvider.MediaPlayer.Play(new Uri(this.URI));
                 this.control.SourceProvider.MediaPlayer.EndReached += (s, e) => this.videoEnded();
             }
-
-            Process cmd = new Process();
-            cmd.StartInfo.FileName = "cmd.exe";
-            cmd.StartInfo.RedirectStandardInput = true;
-            cmd.StartInfo.RedirectStandardOutput = true;
-            cmd.StartInfo.CreateNoWindow = true;
-            cmd.StartInfo.UseShellExecute = false;
-            cmd.Start();
-            //cmd.StandardInput.WriteLine("cd " + System.IO.Directory.GetCurrentDirectory() + @"\MelicharVLC.exe");
-            cmd.StandardInput.WriteLine("--waveout-float32"); //--waveout-float32 //echo Oscar
-            cmd.StandardInput.Flush();
-            cmd.StandardInput.Close();
-            cmd.WaitForExit();
-            volumeLabel.Content = cmd.StandardOutput.ReadToEnd();
         }
 
         private void OnPauseButtonClick()
@@ -168,7 +100,7 @@ namespace MelicharVLC
         {
             this.control?.Dispose();
             this.control = null;
-            playPauseButton.Content = "Přehrát";
+            playPauseButton.Content = "PŘEHRÁT";
             this.isPaused = false;
         }
 
