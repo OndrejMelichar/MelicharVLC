@@ -19,7 +19,7 @@
         <ContentControl Grid.Row="0" Name="ControlContainer" />
 
         <StackPanel Orientation="Vertical" Grid.Row="1">
-            <Button x:Name="playPauseButton" Click="playPauseButtonClick" Style="{DynamicResource ButtonStyle1}" FontWeight="Medium" FontFamily="Times New Roman">POZASTAVIT</Button>
+            <Button x:Name="playPauseButton" Click="playPauseButtonClick" Style="{DynamicResource ButtonStyle1 }" FontWeight="Medium" FontFamily="Times New Roman">POZASTAVIT</Button>
         </StackPanel>
 
     </Grid>
