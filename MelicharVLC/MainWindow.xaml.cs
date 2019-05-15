@@ -34,8 +34,8 @@ namespace MelicharVLC
         private VlcControl control;
         private bool isPaused = false;
 
-        private string URI = "https://pspcr-live.ssl.cdn.cra.cz/live.pscr/smil:snemovna2/index.m3u8";
-        //private string URI = @"D:\Ondřej Melichar\Moje data\škola\3. ročník\VAH\videa\Miloš Zeman - TV spot od Filipa Renče plná verze.mp4";
+        //private string URI = "https://pspcr-live.ssl.cdn.cra.cz/live.pscr/smil:snemovna2/index.m3u8";
+        private string URI = @"R:\Videa\Miloš Zeman - TV spot od Filipa Renče plná verze.mp4";
 
         public MainWindow()
         {
